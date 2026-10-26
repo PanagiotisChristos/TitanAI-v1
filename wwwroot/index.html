@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>TitanAI | AI answers, spoken naturally</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f6f2;
+      --surface: #fff;
+      --ink: #202823;
+      --muted: #737c75;
+      --line: #e3e7e0;
+      --green: #236b53;
+      --green-dark: #194d3d;
+      --lime: #d8ef86;
+      --coral: #e78469;
+      --shadow: 0 12px 34px rgb(28 43 34 / 7%);
+      --page-pattern: #dfe5dc;
+      --topbar-background: rgb(245 246 242 / 92%);
+      --topbar-border: rgb(32 40 35 / 8%);
+      --brand-ink: var(--green-dark);
+      --outline: #dfe5dc;
+      --outline-hover: #9ab8a7;
+      --subtle-surface: rgb(255 255 255 / 76%);
+      --subtle-surface-hover: #fff;
+      --subtle-ink: #49534c;
+      --answer-ink: #303a33;
+      --tool-ink: #59645c;
+      --tool-hover-ink: var(--green-dark);
+      --composer-outline: #dce2da;
+      --focus-outline: #91b5a2;
+      --focus-glow: rgb(35 107 83 / 8%);
+      --placeholder: #929a93;
+      --mic-surface: #eef2ed;
+      --mic-ink: var(--green-dark);
+      --mic-hover-surface: #e0eae0;
+      --send-surface: var(--green);
+      --send-hover-surface: var(--green-dark);
+      --error-ink: #a24d35;
+      --error-surface: #fbe7df;
+      --error-glow: rgb(231 132 105 / 14%);
+      --bubble-ink: #fff;
+      --action-outline: transparent;
+      font-family: "DM Sans", "Avenir Next", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --paper: #05080d;
+      --surface: #080d14;
+      --ink: #e6f4ff;
+      --muted: #9bb5c8;
+      --line: #8bcfff;
+      --green: #78c7ff;
+      --green-dark: #b5e2ff;
+      --lime: #10243a;
+      --coral: #8bcfff;
+      --shadow: 0 12px 34px rgb(0 0 0 / 35%);
+      --page-pattern: #13283b;
+      --topbar-background: rgb(5 8 13 / 94%);
+      --topbar-border: rgb(139 207 255 / 35%);
+      --brand-ink: #b5e2ff;
+      --outline: #8bcfff;
+      --outline-hover: #c1e7ff;
+      --subtle-surface: #080d14;
+      --subtle-surface-hover: #10243a;
+      --subtle-ink: #d7eeff;
+      --answer-ink: #dceeff;
+      --tool-ink: #c6e5fa;
+      --tool-hover-ink: #fff;
+      --composer-outline: #8bcfff;
+      --focus-outline: #c1e7ff;
+      --focus-glow: rgb(139 207 255 / 18%);
+      --placeholder: #8ba9bd;
+      --mic-surface: #10243a;
+      --mic-ink: #c5e8ff;
+      --mic-hover-surface: #183653;
+      --send-surface: #1c5b83;
+      --send-hover-surface: #2879aa;
+      --error-ink: #a9dcff;
+      --error-surface: #16314a;
+      --error-glow: rgb(139 207 255 / 20%);
+      --bubble-ink: #04111b;
+      --action-outline: #8bcfff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(var(--page-pattern) 0.7px, transparent 0.7px);
+      background-size: 19px 19px;
+    }
+
+    button, textarea { font: inherit; }
+    button { color: inherit; }
+
+    .topbar {
+      height: 70px;
+      padding: 0 clamp(20px, 5vw, 76px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--topbar-border);
+      background: var(--topbar-background);
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: 18px; }
+    .theme-toggle {
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid var(--outline);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .theme-toggle:hover { border-color: var(--outline-hover); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+    .channel-link {
+      min-height: 34px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--outline);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+    .channel-link:hover { border-color: var(--outline-hover); background: var(--subtle-surface-hover); }
+    .channel-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+    .channel-link svg { width: 15px; height: 15px; flex: 0 0 15px; }
+    .channel-link-featured { min-height: 38px; padding: 8px 13px; }
+
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      color: var(--brand-ink);
+      background: var(--lime);
+    }
+    .brand-name { font-size: 16px; font-weight: 700; letter-spacing: 0; }
+    .brand-caption {
+      margin-left: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .connection {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #64a77d;
+      box-shadow: 0 0 0 3px rgb(100 167 125 / 13%);
+    }
+    .connection.needs-key .connection-dot { background: var(--coral); box-shadow: 0 0 0 3px rgb(231 132 105 / 13%); }
+
+    .layout {
+      width: min(100% - 40px, 820px);
+      min-height: calc(100vh - 70px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .conversation {
+      flex: 1;
+      padding: clamp(52px, 10vh, 104px) 0 36px;
+      animation: arrive 450ms ease-out both;
+    }
+
+    .welcome { max-width: 680px; margin: 0 auto; }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 20px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--coral); }
+    h1 {
+      max-width: 640px;
+      margin: 0;
+      font-family: "Newsreader", Georgia, serif;
+      font-size: clamp(42px, 7vw, 68px);
+      font-weight: 500;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    h1 span { color: var(--green); }
+    .intro {
+      max-width: 510px;
+      margin: 20px 0 31px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .suggestion {
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1px solid var(--outline);
+      border-radius: 999px;
+      background: var(--subtle-surface);
+      color: var(--subtle-ink);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+    }
+    .suggestion:hover { transform: translateY(-1px); border-color: var(--outline-hover); background: var(--subtle-surface-hover); }
+
+    .messages { display: grid; gap: 28px; }
+    .message { animation: arrive 260ms ease-out both; }
+    .message-question { display: flex; justify-content: flex-end; }
+    .question-bubble {
+      max-width: min(86%, 570px);
+      padding: 13px 17px;
+      border-radius: 17px 17px 4px 17px;
+      background: var(--green);
+      color: var(--bubble-ink);
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .answer-heading {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 10px;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .answer-mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--lime);
+    }
+    .answer-text {
+      max-width: 700px;
+      color: var(--answer-ink);
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .answer-tools { margin-top: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+    .tool-button {
+      min-height: 32px;
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: transparent;
+      color: var(--tool-ink);
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .tool-button:hover { border-color: var(--outline-hover); color: var(--tool-hover-ink); }
+    .tool-button:disabled { cursor: not-allowed; opacity: .55; }
+    .thinking { color: var(--muted); font-size: 13px; }
+    .thinking::after { content: ""; display: inline-block; width: 16px; animation: dots 1.2s steps(4, end) infinite; }
+
+    .composer-wrap { padding: 0 0 max(25px, env(safe-area-inset-bottom)); }
+    .composer {
+      padding: 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      border: 1px solid var(--composer-outline);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .composer:focus-within { border-color: var(--focus-outline); box-shadow: var(--shadow), 0 0 0 3px var(--focus-glow); }
+    textarea {
+      flex: 1;
+      min-width: 0;
+      min-height: 44px;
+      max-height: 150px;
+      padding: 12px 10px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    textarea::placeholder { color: var(--placeholder); }
+    .action-button {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--action-outline);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: transform 150ms ease, background 150ms ease;
+    }
+    .action-button:hover { transform: translateY(-1px); }
+    .mic-button { background: var(--mic-surface); color: var(--mic-ink); }
+    .mic-button:hover { background: var(--mic-hover-surface); }
+    .mic-button.listening { background: var(--error-surface); color: var(--error-ink); animation: pulse 1.2s ease-in-out infinite; }
+    .send-button { background: var(--send-surface); color: white; }
+    .send-button:hover { background: var(--send-hover-surface); }
+    .send-button:disabled { cursor: wait; opacity: .55; transform: none; }
+    .composer-note { min-height: 18px; padding: 8px 4px 0; color: var(--muted); font-size: 10px; text-align: center; }
+    .composer-note.error { color: var(--error-ink); }
+    .answer-text.error { color: var(--error-ink) !important; }
+
+    @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 5px var(--error-glow); } }
+    @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
+
+    @media (max-width: 600px) {
+      .topbar { height: 60px; padding-inline: 17px; }
+      .brand-caption { display: none; }
+      .topbar-actions { gap: 10px; }
+      .layout { width: min(100% - 30px, 820px); min-height: calc(100vh - 60px); }
+      .conversation { padding-top: 58px; }
+      .intro { font-size: 14px; }
+      .question-bubble { max-width: 93%; }
+    }
+    @media (max-width: 380px) {
+      .topbar { padding-inline: 12px; }
+      .brand { gap: 7px; }
+      .brand-mark { width: 30px; height: 30px; }
+      .topbar-actions { gap: 8px; }
+      .theme-toggle { padding-inline: 8px; font-size: 10px; }
+      .channel-link { padding-inline: 7px; font-size: 10px; }
+      .connection { gap: 5px; font-size: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 14.4 9.6 21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3Z"/><path d="m18.5 3 .7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z"/></svg>
+      </span>
+      <span class="brand-name">TitanAI</span>
+      <span class="brand-caption">AI answers, spoken naturally</span>
+    </div>
+    <div class="topbar-actions">
+      <a class="channel-link" href="https://www.youtube.com/@TechTitansGr" target="_blank" rel="noopener noreferrer" aria-label="Visit TechTitansGr on YouTube">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
+        YouTube
+      </a>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+      <div id="connection" class="connection" role="status" aria-live="polite">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connectionText">Checking assistant</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section id="conversation" class="conversation" aria-live="polite">
+      <div id="welcome" class="welcome">
+        <div class="eyebrow">Voice + AI</div>
+        <h1>Ask a question.<br><span>Get a clear answer.</span></h1>
+        <p class="intro">Get a clear answer from an AI assistant. Type below or tap the microphone to ask out loud. Verify important information independently.</p>
+        <p><a class="channel-link channel-link-featured" href="https://www.youtube.com/@TechTitansGr" target="_blank" rel="noopener noreferrer" aria-label="Visit the TechTitansGr YouTube channel">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>
+          Visit TechTitansGr on YouTube
+        </a></p>
+        <div class="suggestions" aria-label="Example questions">
+          <button class="suggestion" type="button">How does space exploration work?</button>
+          <button class="suggestion" type="button">How do heat pumps work?</button>
+          <button class="suggestion" type="button">Explain the link between sleep and memory</button>
+        </div>
+      </div>
+      <div id="messages" class="messages" hidden></div>
+    </section>
+
+    <div class="composer-wrap">
+      <form id="askForm" class="composer" autocomplete="off">
+        <textarea id="question" name="question" rows="1" maxlength="1000" aria-label="Your question" placeholder="Ask anything..." required></textarea>
+        <button id="micButton" class="action-button mic-button" type="button" aria-label="Speak your question" title="Speak your question">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg>
+        </button>
+        <button id="sendButton" class="action-button send-button" type="submit" aria-label="Ask assistant" title="Ask assistant">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+      </form>
+      <div id="composerNote" class="composer-note">Enter to ask · Shift + Enter for a new line</div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.querySelector("#askForm");
+    const textarea = document.querySelector("#question");
+    const sendButton = document.querySelector("#sendButton");
+    const micButton = document.querySelector("#micButton");
+    const messages = document.querySelector("#messages");
+    const welcome = document.querySelector("#welcome");
+    const composerNote = document.querySelector("#composerNote");
+    const connection = document.querySelector("#connection");
+    const connectionText = document.querySelector("#connectionText");
+    const themeToggle = document.querySelector("#themeToggle");
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let busy = false;
+    let recognition;
+    let activeSpeech;
+
+    function applyTheme(theme) {
+      const isDark = theme === "dark";
+      document.documentElement.dataset.theme = isDark ? "dark" : "light";
+      themeToggle.textContent = isDark ? "Light mode" : "Dark mode";
+      themeToggle.setAttribute("aria-pressed", String(isDark));
+      themeColor.content = isDark ? "#05080d" : "#f5f6f2";
+    }
+
+    let savedTheme = "light";
+    try {
+      savedTheme = localStorage.getItem("titanai-theme") === "dark" ? "dark" : "light";
+    } catch {
+      // Theme switching still works for this page if storage is unavailable.
+    }
+    applyTheme(savedTheme);
+    themeToggle.addEventListener("click", () => {
+      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(nextTheme);
+      try {
+        localStorage.setItem("titanai-theme", nextTheme);
+      } catch {
+        // Keep the selected theme for the current page if storage is unavailable.
+      }
+    });
+
+    function setNote(text, isError = false) {
+      composerNote.textContent = text;
+      composerNote.classList.toggle("error", isError);
+    }
+
+    fetch("/api/status")
+      .then(response => response.json())
+      .then(status => {
+        connection.classList.toggle("needs-key", !status.configured);
+        connectionText.textContent = status.configured ? "Ready" : "API key needed";
+      })
+      .catch(() => {
+        connection.classList.add("needs-key");
+        connectionText.textContent = "Assistant unavailable";
+      });
+
+    function addQuestion(text) {
+      const article = document.createElement("article");
+      article.className = "message message-question";
+      const bubble = document.createElement("div");
+      bubble.className = "question-bubble";
+      bubble.textContent = text;
+      article.append(bubble);
+      messages.append(article);
+    }
+
+    function addAnswer() {
+      const article = document.createElement("article");
+      article.className = "message";
+      const heading = document.createElement("div");
+      heading.className = "answer-heading";
+      const mark = document.createElement("span");
+      mark.className = "answer-mark";
+      mark.textContent = "✳";
+      heading.append(mark, document.createTextNode("TitanAI"));
+      const text = document.createElement("div");
+      text.className = "answer-text thinking";
+      text.textContent = "Preparing an answer";
+      article.append(heading, text);
+      let listen;
+      if ("speechSynthesis" in window) {
+        const tools = document.createElement("div");
+        tools.className = "answer-tools";
+        listen = document.createElement("button");
+        listen.type = "button";
+        listen.className = "tool-button";
+        listen.textContent = "Listen";
+        listen.disabled = true;
+        listen.addEventListener("click", () => {
+          if (!text.textContent.trim() || text.classList.contains("thinking")) return;
+          if (activeSpeech?.button === listen) {
+            activeSpeech = undefined;
+            window.speechSynthesis.cancel();
+            listen.textContent = "Listen";
+            return;
+          }
+
+          if (activeSpeech) {
+            activeSpeech.button.textContent = "Listen";
+            window.speechSynthesis.cancel();
+          }
+
+          const utterance = new SpeechSynthesisUtterance(text.textContent.trim());
+          utterance.lang = navigator.language || "en-US";
+          const speech = { button: listen, utterance };
+          activeSpeech = speech;
+          listen.textContent = "Stop";
+          utterance.onend = () => {
+            if (activeSpeech === speech) {
+              activeSpeech = undefined;
+              listen.textContent = "Listen";
+            }
+          };
+          utterance.onerror = event => {
+            if (activeSpeech === speech) {
+              activeSpeech = undefined;
+              listen.textContent = "Listen";
+              setNote(`Speech playback failed (${event.error}). Check your device's sound and speech settings, then try again.`, true);
+            }
+          };
+          window.speechSynthesis.speak(utterance);
+        });
+        tools.append(listen);
+        article.append(tools);
+      }
+      messages.append(article);
+      return { text, listen };
+    }
+
+    async function ask(question) {
+      if (busy || !question.trim()) return;
+      busy = true;
+      sendButton.disabled = true;
+      welcome.hidden = true;
+      messages.hidden = false;
+      addQuestion(question);
+      const answer = addAnswer();
+      textarea.value = "";
+      textarea.style.height = "auto";
+      setNote("Preparing your answer...");
+      messages.scrollIntoView({ behavior: "smooth", block: "end" });
+
+      try {
+        const response = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.detail || result.message || result.title || "The request could not be completed.");
+        answer.text.classList.remove("thinking");
+        answer.text.textContent = result.answer;
+        if (answer.listen) answer.listen.disabled = false;
+        setNote("AI-generated answer. Verify important information independently.");
+      } catch (error) {
+        answer.text.classList.remove("thinking");
+        answer.text.textContent = error.message || "Something went wrong. Please try again.";
+        answer.text.classList.add("error");
+        setNote("Your question is still here. You can try again.", true);
+      } finally {
+        busy = false;
+        sendButton.disabled = false;
+        textarea.focus();
+        messages.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      ask(textarea.value);
+    });
+
+    textarea.addEventListener("input", () => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
+    });
+
+    textarea.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    document.querySelectorAll(".suggestion").forEach(button => {
+      button.addEventListener("click", () => {
+        textarea.value = button.textContent;
+        form.requestSubmit();
+      });
+    });
+
+    micButton.addEventListener("click", () => {
+      if (!SpeechRecognition) {
+        setNote("Speech recognition is not available in this browser. Try Chrome or Edge.", true);
+        return;
+      }
+      if (recognition) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = navigator.language || "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.onstart = () => {
+        micButton.classList.add("listening");
+        micButton.setAttribute("aria-label", "Stop listening");
+        micButton.title = "Stop listening";
+        setNote("Listening... speak your question.");
+      };
+      recognition.onresult = event => {
+        let transcript = "";
+        for (let index = 0; index < event.results.length; index++) transcript += event.results[index][0].transcript;
+        textarea.value = transcript;
+        textarea.dispatchEvent(new Event("input"));
+      };
+      recognition.onerror = event => {
+        setNote(event.error === "not-allowed" ? "Allow microphone access in your browser to use speech input." : "Speech input stopped. You can type your question instead.", true);
+      };
+      recognition.onend = () => {
+        recognition = null;
+        micButton.classList.remove("listening");
+        micButton.setAttribute("aria-label", "Speak your question");
+        micButton.title = "Speak your question";
+        if (textarea.value.trim()) {
+          textarea.focus();
+          setNote("Your words are ready. Press Enter to ask.");
+        }
+      };
+      try { recognition.start(); }
+      catch { recognition = null; setNote("Could not start speech input. Try again or type your question.", true); }
+    });
+  </script>
+</body>
+</html>
