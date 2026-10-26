@@ -10,4 +10,5 @@ WORKDIR /app
 ENV ASPNETCORE_HTTP_PORTS=10000
 EXPOSE 10000
 COPY --from=build /app/publish .
+COPY --from=build /src/wwwroot ./wwwroot
 ENTRYPOINT ["dotnet", "Project no.1.dll"]
